@@ -511,6 +511,54 @@ func CPUCycles(f func() error) (*ProfileValue, error) {
 	return profileFn(eventAttr, f)
 }
 
+func StartCPUCycles() (func() error, interface{}, error) {
+	eventAttr := &unix.PerfEventAttr{
+		Type:        unix.PERF_TYPE_HARDWARE,
+		Config:      unix.PERF_COUNT_HW_CPU_CYCLES,
+		Size:        EventAttrSize,
+		Bits:        unix.PerfBitDisabled | unix.PerfBitExcludeKernel | unix.PerfBitExcludeHv,
+		Read_format: unix.PERF_FORMAT_TOTAL_TIME_RUNNING | unix.PERF_FORMAT_TOTAL_TIME_ENABLED,
+	}
+
+	cb, err := LockThread(rand.Intn(runtime.NumCPU()))
+	if err != nil {
+		return nil, nil, err
+	}
+	fd, err := unix.PerfEventOpen(
+		eventAttr,
+		unix.Gettid(),
+		-1,
+		-1,
+		0,
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := unix.IoctlSetInt(fd, unix.PERF_EVENT_IOC_RESET, 0); err != nil {
+		return nil, nil, err
+	}
+	if err := unix.IoctlSetInt(fd, unix.PERF_EVENT_IOC_ENABLE, 0); err != nil {
+		return nil, nil, err
+	}
+	return cb, fd, nil
+}
+
+func StopCPUCycles(cb func() error, df interface{}) (*ProfileValue, error) {
+	if err := unix.IoctlSetInt(fd, unix.PERF_EVENT_IOC_DISABLE, 0); err != nil {
+		return nil, err
+	}
+	defer cb()
+	buf := make([]byte, 24)
+	if _, err := syscall.Read(fd, buf); err != nil {
+		return nil, err
+	}
+	return &ProfileValue{
+		Value:       binary.LittleEndian.Uint64(buf[0:8]),
+		TimeEnabled: binary.LittleEndian.Uint64(buf[8:16]),
+		TimeRunning: binary.LittleEndian.Uint64(buf[16:24]),
+	}, unix.Close(fd)
+}
+
 // CPUCyclesEventAttr returns a unix.PerfEventAttr configured for CPUCycles.
 func CPUCyclesEventAttr() unix.PerfEventAttr {
 	return unix.PerfEventAttr{
