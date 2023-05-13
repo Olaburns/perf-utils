@@ -1,4 +1,4 @@
-module github.com/hodgesds/perf-utils
+module github.com/Olaburns/perf-utils
 
 go 1.14
 
