@@ -559,7 +559,7 @@ func StopCPUCycles(cb func(), fd int) (*ProfileValue, error) {
 	}, unix.Close(fd)
 }
 
-// CPUCyclesEventAttr returns a unix.PerfEventAttr configured for CPUCycles.
+// CPUCyclesEventAttr returns a unix.PerfEventAttr configured for CPUCyclesad.
 func CPUCyclesEventAttr() unix.PerfEventAttr {
 	return unix.PerfEventAttr{
 		Type:        unix.PERF_TYPE_HARDWARE,
