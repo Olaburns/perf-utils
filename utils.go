@@ -511,7 +511,7 @@ func CPUCycles(f func() error) (*ProfileValue, error) {
 	return profileFn(eventAttr, f)
 }
 
-func StartCPUCycles() (func(), interface{}, error) {
+func StartCPUCycles() (func(), int, error) {
 	eventAttr := &unix.PerfEventAttr{
 		Type:        unix.PERF_TYPE_HARDWARE,
 		Config:      unix.PERF_COUNT_HW_CPU_CYCLES,
@@ -543,7 +543,7 @@ func StartCPUCycles() (func(), interface{}, error) {
 	return cb, fd, nil
 }
 
-func StopCPUCycles(cb func(), fd interface{}) (*ProfileValue, error) {
+func StopCPUCycles(cb func(), fd int) (*ProfileValue, error) {
 	if err := unix.IoctlSetInt(fd, unix.PERF_EVENT_IOC_DISABLE, 0); err != nil {
 		return nil, err
 	}
