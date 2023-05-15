@@ -543,6 +543,7 @@ func StartCPUCycles() (func(), int, error) {
 	return cb, fd, nil
 }
 
+// Stops the CPU Cycels
 func StopCPUCycles(cb func(), fd int) (*ProfileValue, error) {
 	if err := unix.IoctlSetInt(fd, unix.PERF_EVENT_IOC_DISABLE, 0); err != nil {
 		return nil, err
