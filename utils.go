@@ -511,6 +511,7 @@ func CPUCycles(f func() error) (*ProfileValue, error) {
 	return profileFn(eventAttr, f)
 }
 
+// Starts the CPU Cycels
 func StartCPUCycles() (func(), int, error) {
 	eventAttr := &unix.PerfEventAttr{
 		Type:        unix.PERF_TYPE_HARDWARE,
