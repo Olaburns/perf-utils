@@ -522,7 +522,7 @@ func StartCPUCycles() (func(), int, error) {
 
 	cb, err := LockThread(rand.Intn(runtime.NumCPU()))
 	if err != nil {
-		return nil, nil, err
+		return nil, 0, err
 	}
 	fd, err := unix.PerfEventOpen(
 		eventAttr,
@@ -532,13 +532,13 @@ func StartCPUCycles() (func(), int, error) {
 		0,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, 0, err
 	}
 	if err := unix.IoctlSetInt(fd, unix.PERF_EVENT_IOC_RESET, 0); err != nil {
-		return nil, nil, err
+		return nil, 0, err
 	}
 	if err := unix.IoctlSetInt(fd, unix.PERF_EVENT_IOC_ENABLE, 0); err != nil {
-		return nil, nil, err
+		return nil, 0, err
 	}
 	return cb, fd, nil
 }
