@@ -51,7 +51,10 @@ func MaxOpenFiles() (uint64, error) {
 // LockThread locks an goroutine to an OS thread and then sets the affinity of
 // the thread to a processor core.
 func LockThread(core int) (func(), error) {
-	return func() {}, nil
+	runtime.LockOSThread()
+	cpuSet := unix.CPUSet{}
+	cpuSet.Set(core)
+	return runtime.UnlockOSThread, unix.SchedSetaffinity(0, &cpuSet)
 }
 
 // failBenchmark is a helper function for RunBenchmarks: if an error occurs
