@@ -1,6 +1,6 @@
 module github.com/Olaburns/perf-utils
 
-go 1.2ß
+go 1.20
 
 require (
 	github.com/stretchr/testify v1.3.0
